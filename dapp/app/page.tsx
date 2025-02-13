@@ -28,7 +28,7 @@ export default function Home() {
         <p className="text-xl ml-6 w-80 mb-8">
           Explore, collect, and trade digital assets in a vibrant marketplace.
         </p>
-        <button onClick={()=>router.push("/Pages/signup")} className="bg-white text-blue-600 ml-2 w-80 px-8 py-4 rounded-full font-semibold text-lg hover:bg-blue-100">
+        <button onClick={()=>router.push("/Pages/dashboard")} className="bg-white text-blue-600 ml-2 w-80 px-8 py-4 rounded-full font-semibold text-lg hover:bg-blue-100">
           Start Exploring
         </button>
       </div>
