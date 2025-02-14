@@ -1,8 +1,13 @@
 "use client";
 import React from "react";
-import Navbar from "@/app/components/navbar";
+// import Navbar from "@/app/components/navbar";
 import NFTGrid from "@/app/components/nft-grid";
 import CreateNFTForm from "@/app/components/create-nft-form";
+
+// Dynamically import the Navbar component
+import dynamic from "next/dynamic";
+const Navbar =dynamic(()=>import("@/app/components/navbar"),{ssr:false});
+
 
 export default function Dashboard() {
   return (
