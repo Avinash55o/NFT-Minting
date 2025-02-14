@@ -27,11 +27,11 @@ export default function CreateNFTForm() {
   return (
     <div className="relative min-h-full rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 overflow-hidden">
         <img
-    src="/Frame 1.png" // Replace with your actual image path
+    src="/Frame 1.png" 
     alt="Background"
-    className="absolute top-0 left-0 w-full h-full object-cover opacity-50 z-0 animate-float-slow "
+    className="absolute top-0 left-0 w-full h-full object-cover opacity-50  animate-float-slow "
   />
-      <div className=" p-4">
+      <div className="flex flex-col p-4">
         <div className="mb-6 mt-9 flex justify-center items-center gap-2">
           <Bitcoin className="h-8 w-8" />
           <h1 className="text-2xl font-bold">Create an NFT</h1>
@@ -43,7 +43,7 @@ export default function CreateNFTForm() {
 
         <div
           {...getRootProps()}
-          className="mb-8 cursor-pointer rounded-xl text-slate-950 bg-white/80 p-8 text-center"
+          className="mt-32 ml-28 mb-8 cursor-pointer rounded-xl text-slate-950 bg-white/80 p-10 text-center absolute z-10 flex flex-col items-center justify-centers"
         >
           <input {...getInputProps()} />
           <Upload className="mx-auto mb-2 h-6 w-6" />
@@ -61,14 +61,14 @@ export default function CreateNFTForm() {
             </>
           )}
         </div>
-        <div className=" flex flex-col  space-y-6">
+        <div className=" flex flex-col mt-48 ml-6 space-y-6">
           <div>
             <label className="mb-2 block font-medium">Name</label>
-            <input type="text" className="bg-white/80 rounded-xl" />
+            <input type="text" className="bg-white/80 flex text-black rounded-xl relative p-2" />
           </div>
           <div>
-            <label className="mb-2 block font-medium">Description</label>
-            <input className="min-h-48 w-full bg-white/80 rounded-2xl" />
+            <label className="mb-2 mt-2 block font-medium">Description</label>
+            <textarea className="min-h-48 max-h-min overflow-y-auto scrollbar-hide w-96 bg-white/80 text-black rounded-2xl relative p-2" />
           </div>
         </div>
 
