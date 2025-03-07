@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { ShoppingCart } from "lucide-react"
+
 
 interface NFTCardProps {
   name: string
@@ -39,7 +39,7 @@ export function NFTCard({ name, description, price, image }: NFTCardProps) {
       <div className="flex items-center justify-between">
         <div className="rounded-full bg-gray-700 px-3 py-1 text-sm text-white">{price} ETH</div>
         <button  className="gap-2">
-          <ShoppingCart className="h-4 w-4" />
+         
           Buy
         </button>
       </div>

@@ -1,79 +1,166 @@
 "use client";
+import { useState,useEffect } from "react";
+import { FiUploadCloud } from "react-icons/fi";
+import { FaEthereum, FaWallet, FaSpinner } from "react-icons/fa";
+import { uploadToPinata } from "../api/uploadToPinata";
+import { getContract } from "../utils/contractUtils";
+import { ethers } from "ethers";
+import { MetaMaskInpageProvider } from "@metamask/providers";
+declare global{
+    interface Window {
+        ethereum?: MetaMaskInpageProvider;
+      }
+}
 
-import { Bitcoin, Upload } from "lucide-react";
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
 
-export default function CreateNFTForm() {
-  const [file, setFile] = useState<File | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFile(acceptedFiles[0]);
-  }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      "image/jpeg": [".jpg"],
-      "image/png": [".png"],
-      "image/gif": [".gif"],
-      "image/svg+xml": [".svg"],
-      "video/mp4": [".mp4"],
-    },
-    maxSize: 50 * 1024 * 1024, // 50MB
-    multiple: false,
-  });
 
-  return (
-    <div className="relative min-h-full rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 overflow-hidden">
-        <img
-    src="/Frame 1.png" 
-    alt="Background"
-    className="absolute top-0 left-0 w-full h-full object-cover opacity-50  animate-float-slow "
-  />
-      <div className="flex flex-col p-4">
-        <div className="mb-6 mt-9 flex justify-center items-center gap-2">
-          <Bitcoin className="h-8 w-8" />
-          <h1 className="text-2xl font-bold">Create an NFT</h1>
-        </div>
-        <p className="mb-8 text-sm text-gray-700">
-          Once your item is minted you will not be able to change any of its
-          information.
-        </p>
+export default function mintNFT(){
+    const [file, setFile] = useState<File | null>(null);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [price, setPrice] = useState("");
+    const [wallet, setWallet] = useState("");
+    const [isMinting, setIsMinting] = useState(false);
+    const [success, setSuccess] = useState(false);
+  
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = (e.target as HTMLInputElement).files?.[0];
+        if (selectedFile) {
+          setFile(selectedFile);
+        }
+      };
+      
+      useEffect(() => {
+        async function getWalletAddress() {
+          if (window.ethereum) {
+            try {
+              const accounts = (await window.ethereum.request({ method: "eth_accounts" })) as string[]; //"as string[]"=>If you're sure accounts will always be an array (which it typically is), you can use type assertion:
+              if (accounts.length > 0) {
+                setWallet(accounts[0]); // Set the first account
+              }
+            } catch (error) {
+              console.error("Error fetching wallet:", error);
+            }
+          } else {
+            console.log("MetaMask not installed");
+          }
+        }
+        getWalletAddress();
+      }, []);
+      
+  
+    // Mint NFT
+  const handleMint = async () => {
+    if (!file || !name || !description || !price) {
+      alert("Please fill in all fields!");
+      return;
+    }
 
-        <div
-          {...getRootProps()}
-          className="mt-32 ml-28 mb-8 cursor-pointer rounded-xl text-slate-950 bg-white/80 p-10 text-center absolute z-10 flex flex-col items-center justify-centers"
-        >
-          <input {...getInputProps()} />
-          <Upload className="mx-auto mb-2 h-6 w-6" />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <>
-              <p>Drag and drop media</p>
-              <p className="text-sm text-gray-500">Browse files</p>
-              <p className="mt-2 text-xs text-gray-400">
-                Max size: 50MB
-                <br />
-                JPG, PNG, GIF, SVG, MP4
-              </p>
-            </>
+    setIsMinting(true); // ✅ Set loading state
+
+    try {
+      const metadataURI = await uploadToPinata(file, name, description);
+      if (!metadataURI) throw new Error("Error uploading to IPFS");
+
+      const contract = await getContract();
+      if (!contract) throw new Error("Smart contract not found");
+
+      const tx = await contract.createToken(metadataURI, ethers.parseEther(price), {
+        value: ethers.parseEther("0.00001"), // Listing fee
+      });
+      await tx.wait();
+
+      alert("✅ NFT Minted & Listed Successfully!");
+      setSuccess(true);
+    } catch (error) {
+      console.error("Minting error:", error);
+      alert("error");
+    } finally {
+      setIsMinting(false); // ✅ Reset loading state
+    }
+  };
+    return(
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 p-6">
+        <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
+          <h2 className="text-white text-2xl font-bold text-center mb-6">
+            Mint Your NFT 🚀
+          </h2>
+  
+          {/* NFT File Upload */}
+          <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-gray-900 hover:border-purple-500 transition">
+            <FiUploadCloud className="text-gray-400 text-4xl mb-2" />
+            <span className="text-gray-400">{file ? file.name : "Upload NFT File"}</span>
+            <input type="file" className="hidden" onChange={handleFileChange} />
+          </label>
+  
+          {/* NFT Name */}
+          <div className="mt-4">
+            <input
+              type="text"
+              placeholder="NFT Name"
+              className="w-full px-4 py-2 bg-gray-700 text-white rounded-md outline-none focus:ring-2 focus:ring-purple-500"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+  
+          {/* NFT Description */}
+          <div className="mt-4">
+            <textarea
+              placeholder="NFT Description"
+              rows={3}
+              className="w-full px-4 py-2 bg-gray-700 text-white rounded-md outline-none focus:ring-2 focus:ring-purple-500"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+  
+          {/* Price */}
+          <div className="mt-4 flex items-center bg-gray-700 px-4 py-2 rounded-md">
+            <FaEthereum className="text-gray-400 mr-2" />
+            <input
+              type="number"
+              placeholder="Price (ETH)"
+              className="w-full bg-transparent text-white outline-none"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
+  
+          {/* Wallet Address */}
+          <div className="mt-4 flex items-center bg-gray-700 px-4 py-2 rounded-md">
+            <FaWallet className="text-gray-400 mr-2" />
+            <input
+              type="text"
+              placeholder="Wallet Address"
+              className="w-full bg-transparent text-white outline-none"
+              value={wallet}
+              onChange={(e) => setWallet(e.target.value)}
+            />
+          </div>
+  
+          {/* Mint Button */}
+          <button
+            onClick={handleMint}
+            className="mt-6 w-full py-3 bg-purple-600 text-white font-semibold rounded-md flex items-center justify-center transition hover:bg-purple-700 disabled:opacity-50"
+            disabled={isMinting}
+          >
+            {isMinting ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              "Mint NFT"
+            )}
+          </button>
+  
+          {/* Success Message */}
+          {success && (
+            <p className="text-green-400 text-center mt-4">
+              ✅ NFT Minted Successfully!
+            </p>
           )}
         </div>
-        <div className=" flex flex-col mt-48 ml-6 space-y-6">
-          <div>
-            <label className="mb-2 block font-medium">Name</label>
-            <input type="text" className="bg-white/80 flex text-black rounded-xl relative p-2" />
-          </div>
-          <div>
-            <label className="mb-2 mt-2 block font-medium">Description</label>
-            <textarea className="min-h-48 max-h-min overflow-y-auto scrollbar-hide w-96 bg-white/80 text-black rounded-2xl relative p-2" />
-          </div>
-        </div>
-
-        
       </div>
-    </div>
-  );
+    )
 }

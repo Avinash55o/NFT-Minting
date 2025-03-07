@@ -1,10 +1,15 @@
+//connect the frontend and the smart contract.
+
+import nftMarketplace from '../constants/MyNFT.json';
 import {ethers} from "ethers"
+export const NFTMarketPlaceAdddress="0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
-import MyNFTArtifact from "@/public/MyNFT.json"
 
-export const CONTRACT_ABI=MyNFTArtifact.abi;
-export const CONTRACT_ADDRESS="0xb5Ce5d272aA6910D84F0606f8a4BC37b396C303F";
-
-export const getContract=(signerOrProvider:any)=>{
-    return new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,signerOrProvider);                                              
-}
+export const getContract = async (): Promise<ethers.Contract | null> => {
+    if (typeof window !== "undefined" && (window as any).ethereum) {
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      return new ethers.Contract(NFTMarketPlaceAdddress, nftMarketplace.abi, signer);
+    }
+    return null;
+  };
