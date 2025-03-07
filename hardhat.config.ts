@@ -12,8 +12,7 @@ const config: HardhatUserConfig = {
     },
     sepolia:{
       url:"https://eth-sepolia.g.alchemy.com/v2/kfRU_4ZoxXTHocSBXkvM3W3dCLMReWlz",//Alchemy RPC URL
-      accounts:["496bc71426dd3d5a1d77f65ee4a2a1bfae2e3f9276882f0a7ea27d48e05bfbf4"], //Your privalte key
-      gasPrice:2000000000  
+      accounts:["496bc71426dd3d5a1d77f65ee4a2a1bfae2e3f9276882f0a7ea27d48e05bfbf4"], //Your privalte key 
     }
   }
 };

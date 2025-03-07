@@ -51,39 +51,44 @@ export default function mintNFT(){
       }, []);
       
   
-    // Mint NFT
-  const handleMint = async () => {
-    if (!file || !name || !description || !price) {
-      alert("Please fill in all fields!");
-      return;
-    }
-
-    setIsMinting(true); // ✅ Set loading state
-
-    try {
-      const metadataURI = await uploadToPinata(file, name, description);
-      if (!metadataURI) throw new Error("Error uploading to IPFS");
-
-      const contract = await getContract();
-      if (!contract) throw new Error("Smart contract not found");
-
-      const tx = await contract.createToken(metadataURI, ethers.parseEther(price), {
-        value: ethers.parseEther("0.00001"), // Listing fee
-      });
-      await tx.wait();
-
-      alert("✅ NFT Minted & Listed Successfully!");
-      setSuccess(true);
-    } catch (error) {
-      console.error("Minting error:", error);
-      alert("error");
-    } finally {
-      setIsMinting(false); // ✅ Reset loading state
-    }
-  };
+      const handleMint = async () => {
+        if (!file || !name || !description || !price) {
+          alert("Please fill in all fields!");
+          return;
+        }
+      
+        setIsMinting(true); // ✅ Set loading state
+      
+        try {
+          // Upload metadata to Pinata
+          const metadataURI = await uploadToPinata(file, name, description);
+          if (!metadataURI) throw new Error("Error uploading to IPFS");
+      
+          const contract = await getContract();
+          if (!contract) throw new Error("Smart contract not found");
+          console.log("Contract methods:", contract.functions);
+      
+          // Call minting function with correct metadataURI and price
+          const tx = await contract.createToken(metadataURI, {
+            value: ethers.parseEther("0.00001"), // Only pass the listing fee
+          });
+          
+      
+          await tx.wait();
+      
+          alert("✅ NFT Minted & Listed Successfully!");
+          setSuccess(true);
+        } catch (error) {
+          console.error("Minting error:", error);
+          alert("Minting failed!");
+        } finally {
+          setIsMinting(false); // ✅ Reset loading state
+        }
+      };
+      
     return(
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-900 via-purple-900 to-blue-900 p-6">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
+        <div className=" ">
+        <div className="bg-gray-800 p-6 rounded-xl shadow-lg max-w-lg w-full">
           <h2 className="text-white text-2xl font-bold text-center mb-6">
             Mint Your NFT 🚀
           </h2>
