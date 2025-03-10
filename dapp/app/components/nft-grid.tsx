@@ -1,47 +1,52 @@
-
-
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NFTCard from "./nftcard";
-
-const nftData = [
-  {
-    id: 1,
-    name: "CyberPunk Ape",
-    owner: "John Doe",
-    price: 3.5,
-    userImage: "/user1.jpg",
-    NftImage: "/nft1.jpg",
-    time: { day: 2, hour: 5, minutes: 30 },
-  },
-  {
-    id: 2,
-    name: "Futuristic City",
-    owner: "Alice",
-    price: 2.8,
-    userImage: "/user2.jpg",
-    NftImage: "/nft2.jpg",
-    time: { day: 1, hour: 3, minutes: 15 },
-  },
-  {
-    id: 3,
-    name: "Galaxy Explorer",
-    owner: "Eve",
-    price: 5.2,
-    userImage: "/user3.jpg",
-    NftImage: "/nft3.jpg",
-    time: { day: 0, hour: 12, minutes: 45 },
-  },
-];
+import { fetchNFTs, NFTData } from "../utils/fetchNFTs";
 
 const NFTGrid = () => {
-  return (
-    <div className=" flex flex-col h-[80vh] bg-white/10 backdrop-blur-lg p-6 mt-2 rounded-2xl shadow-xl border border-white/20">
-     
+  const [nfts, setNfts] = useState<NFTData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const loadNFTs = async () => {
+      try {
+        setLoading(true);
+        const fetchedNFTs = await fetchNFTs();
+        setNfts(fetchedNFTs);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load NFTs');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNFTs();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-[80vh] text-red-500">
+        {error}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-[80vh] bg-white/10 backdrop-blur-lg p-6 mt-2 rounded-2xl shadow-xl border border-white/20">
+      <h2 className="text-2xl font-bold text-white mb-4">Available NFTs</h2>
+      
       {/* Scrollable NFT Grid */}
-      <div className="grid grid-cols-4 gap-4 overflow-y-auto pr-8  h-full p-4">
-        {nftData.map((nft) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-8 h-full p-4">
+        {nfts.map((nft) => (
           <NFTCard key={nft.id} nft={nft} />
         ))}
       </div>

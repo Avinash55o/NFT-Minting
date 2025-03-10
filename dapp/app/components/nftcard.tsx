@@ -2,20 +2,11 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import { MdVerified, MdTimer } from "react-icons/md";
-
-interface NFT {
-  id: number;
-  name: string;
-  owner: string;
-  price: number;
-  userImage: string;
-  NftImage: string;
-  time: { day: number; hour: number; minutes: number };
-}
+import { MdVerified } from "react-icons/md";
+import { NFTData } from "../utils/fetchNFTs";
 
 interface NFTCardProps {
-  nft: NFT;
+  nft: NFTData;
 }
 
 const NFTCard: React.FC<NFTCardProps> = ({ nft }) => {
@@ -26,7 +17,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft }) => {
       {/* NFT Image */}
       <div className="relative">
         <Image
-          src={nft.NftImage}
+          src={nft.image}
           alt={nft.name}
           width={400}
           height={400}
@@ -49,27 +40,23 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft }) => {
         </div>
       </div>
 
-      {/* User Details */}
+      {/* Owner Details */}
       <div className="flex items-center gap-2 mt-2">
-        <Image
-          src={nft.userImage}
-          alt="User"
-          width={40}
-          height={40}
-          className="rounded-full"
-        />
+        <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+          <span className="text-white text-sm">
+            {nft.owner.slice(0, 2).toUpperCase()}
+          </span>
+        </div>
         <p className="text-gray-400 text-sm flex items-center gap-1">
           <MdVerified className="text-blue-500" />
-          {nft.name}
+          {nft.owner.slice(0, 6)}...{nft.owner.slice(-4)}
         </p>
       </div>
 
-      {/* Price & Timer */}
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-white font-semibold text-lg">💰 {nft.price} ETH</p>
-        <p className="text-gray-400 flex items-center gap-1">
-          <MdTimer className="text-yellow-500" />
-          {nft.time.day}d {nft.time.hour}h {nft.time.minutes}m
+      {/* Price */}
+      <div className="mt-4">
+        <p className="text-white font-semibold text-lg">
+          💰 {nft.price} ETH
         </p>
       </div>
     </div>
