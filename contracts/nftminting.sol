@@ -47,8 +47,8 @@ contract MyNFT is ERC721URIStorage, ERC721Enumerable {
     function createToken(string memory _tokenURI) public payable returns (uint256) {
         require(msg.value >= listingPrice, "Insufficient listing fee");
 
-        _tokenIds.increment(); //  First, increment the counter
-        uint256 newTokenId = _tokenIds.current();  // Then, get the new token ID
+        _tokenIds.increment(); // Increment the counter
+        uint256 newTokenId = _tokenIds.current();  // Get the new token ID
         
         _safeMint(msg.sender, newTokenId);
         _setTokenURI(newTokenId, _tokenURI);

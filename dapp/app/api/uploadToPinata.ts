@@ -1,7 +1,6 @@
 import axios from "axios";
 
 
-
 export const uploadToPinata = async (file: File, name: string, description: string) => {
   const formData = new FormData();
   formData.append("file", file);

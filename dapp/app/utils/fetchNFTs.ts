@@ -1,5 +1,4 @@
-import { ethers } from 'ethers';
-import { NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI } from '../constants/contracts';
+import { getContract } from './contractUtils';
 
 export interface NFTData {
   id: number;
@@ -12,23 +11,27 @@ export interface NFTData {
 
 export async function fetchNFTs(): Promise<NFTData[]> {
   try {
-    if (typeof window.ethereum === 'undefined') {
-      throw new Error('Please install MetaMask to use this feature');
+    console.log("Fetching NFTs...");
+    const contract = await getContract();
+    
+    if (!contract) {
+      throw new Error('Contract not found');
     }
 
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const contract = new ethers.Contract(
-      NFT_CONTRACT_ADDRESS,
-      NFT_CONTRACT_ABI,
-      provider
-    );
-
-    // Get the total number of NFTs
+    console.log("Contract found, getting total supply...");
     const totalSupply = await contract.totalSupply();
+    console.log("Total Supply:", totalSupply.toString());
+
+    if (totalSupply.toNumber() === 0) {
+      console.log("No NFTs found");
+      return [];
+    }
+
     const nfts: NFTData[] = [];
 
     // Fetch each NFT's data
     for (let i = 0; i < totalSupply.toNumber(); i++) {
+      console.log(`Fetching NFT ${i}...`);
       const tokenURI = await contract.tokenURI(i);
       const owner = await contract.ownerOf(i);
       
@@ -40,7 +43,7 @@ export async function fetchNFTs(): Promise<NFTData[]> {
         id: i,
         name: metadata.name,
         owner: owner,
-        price: 0, // You might want to fetch this from your marketplace contract
+        price: 0,
         image: metadata.image,
         tokenURI: tokenURI
       });
